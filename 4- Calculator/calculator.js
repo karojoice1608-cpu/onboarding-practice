@@ -11,15 +11,20 @@ buttons.forEach(button => {
 
         const value = button.dataset.value;
 
+        
         if (errorState) {
             expression = "";
             display.value = "";
             errorState = false;
         }
 
-        if (resultShown && value !== "=" && value !== "+" && value !== "-" && value !== "*" && value !== "/") {
-            expression = "";
-            display.value = "";
+        if (resultShown) {
+
+            if (!["+", "-", "*", "/", "="].includes(value)) {
+                expression = "";
+                display.value = "";
+            }
+
             resultShown = false;
         }
 
@@ -41,10 +46,25 @@ buttons.forEach(button => {
             return;
         }
 
+     
         if (value === ".") {
+
             let lastNumber = expression.split(/[+\-*/]/).pop();
 
             if (lastNumber.includes(".")) {
+                return;
+            }
+        }
+
+     
+        let currentNumber = expression.split(/[+\-*/]/).pop();
+
+        if (!["+", "-", "*", "/", "."].includes(value)) {
+
+            if (currentNumber.length >= 15) {
+                display.value = "Error";
+                expression = "";
+                errorState = true;
                 return;
             }
         }
@@ -58,8 +78,8 @@ buttons.forEach(button => {
 
 function calculate() {
 
-    let numbers = expression.split(/[\+\-\*\/]/);
-    let operators = expression.match(/[\+\-\*\/]/g);
+    let numbers = expression.split(/[+\-*/]/);
+    let operators = expression.match(/[+\-*/]/g);
 
     if (!operators) {
         return;
@@ -86,6 +106,7 @@ function calculate() {
                 break;
 
             case "/":
+
                 if (num === 0) {
                     display.value = "Cannot divide by 0";
                     expression = "";
@@ -98,8 +119,14 @@ function calculate() {
         }
     }
 
+    if (!Number.isFinite(result) || result.toString().length > 15) {
+        display.value = "Error";
+        expression = "";
+        errorState = true;
+        return;
+    }
+
     expression = result.toString();
     display.value = expression;
-
     resultShown = true;
 }
