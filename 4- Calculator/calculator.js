@@ -3,6 +3,7 @@ const buttons = document.querySelectorAll("button");
 
 let expression = "";
 let errorState = false;
+let resultShown = false;
 
 buttons.forEach(button => {
 
@@ -10,16 +11,22 @@ buttons.forEach(button => {
 
         const value = button.dataset.value;
 
-        // Clear error on next keypress
         if (errorState) {
             expression = "";
             display.value = "";
             errorState = false;
         }
 
+        if (resultShown && value !== "=" && value !== "+" && value !== "-" && value !== "*" && value !== "/") {
+            expression = "";
+            display.value = "";
+            resultShown = false;
+        }
+
         if (value === "C") {
             expression = "";
             display.value = "";
+            resultShown = false;
             return;
         }
 
@@ -34,9 +41,7 @@ buttons.forEach(button => {
             return;
         }
 
-        // Prevent multiple decimals
         if (value === ".") {
-
             let lastNumber = expression.split(/[+\-*/]/).pop();
 
             if (lastNumber.includes(".")) {
@@ -81,7 +86,6 @@ function calculate() {
                 break;
 
             case "/":
-
                 if (num === 0) {
                     display.value = "Cannot divide by 0";
                     expression = "";
@@ -92,10 +96,10 @@ function calculate() {
                 result /= num;
                 break;
         }
-
     }
 
     expression = result.toString();
     display.value = expression;
 
+    resultShown = true;
 }
